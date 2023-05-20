@@ -40,8 +40,8 @@ class Economy(commands.Cog):
             await interaction.send(f'Пользователь {interaction.author.mention} перевел пользовател {member.mention} {amount} денег💵')
             await member.send(f'Вам подарок от {interaction.author} в виде {amount} денег💵')
     
-    @commands.slash_command(name='setBalance')
-    async def set_balance(self,interaction,member:disnake.Member,count:int):
+    @commands.slash_command(name='setbalance')
+    async def setbalance(self,interaction,member:disnake.Member,count:int):
         cursor.execute(f"UPDATE users SET balance = {count}")
         await interaction.send(f'Значение баланса пользователя {member} = {count}')
     
@@ -52,6 +52,5 @@ class Economy(commands.Cog):
         await interaction.send(f'Пользователь {interaction.author.mention} выдал пользователю {member.mention} {amount} денег💵')
         await member.send(f'{interaction.author} прислал вам денег в количестве {amount} по причине {reason}')
     
-    
+
 def setup(bot):
-    bot.add_cog(Economy(bot))
