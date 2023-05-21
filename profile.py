@@ -50,7 +50,13 @@ class Profile(commands.Cog):
 
         
             
-        
+"""
+Чтобы запустить код вам потребуется установить библиотеку - pip install discordlevelingcard
+
+После чего код сработает)
+
+
+"""        
 
         
 
