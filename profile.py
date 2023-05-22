@@ -4,6 +4,8 @@ import disnake
 import asyncio
 from disnake.ext import commands
 from DiscordLevelingCard import RankCard,Settings
+from PIL import Image, ImageDraw, ImageFont
+
 
 db = sqlite3.connect('bot.db')
 cursor = db.cursor()
@@ -17,17 +19,24 @@ class Profile(commands.Cog):
 
     
     @commands.slash_command(name="rank")
-    async def card(self,inter, user:disnake.Member=None):
+    async def card(self, inter, user: disnake.Member = None):
         async def get_user_data(member):
             name = member.name
             tag = member.discriminator
             xp = cursor.execute("SELECT xp FROM users WHERE member_id = ?", (member.id,)).fetchone()[0]
             lvl = cursor.execute("SELECT lvl FROM users WHERE member_id = ?", (member.id,)).fetchone()[0]
             max_exp = 10 + 10 * lvl
+
+            # Получаем максимальный уровень из базы данных
+            max_level = cursor.execute("SELECT MAX(lvl) FROM users").fetchone()[0]
+
+            # Вычисляем ранг пользователя
+            rank = 1 if lvl == max_level else cursor.execute("SELECT COUNT(*) FROM users WHERE lvl > ?", (lvl,)).fetchone()[0] + 1
+
             card_settings = Settings(
-            background= "https://i.pinimg.com/originals/80/7c/a1/807ca16b42e5fe7dc8a5794157076559.png",
-            text_color="white",
-            bar_color="#5865f2"
+                background="https://i.pinimg.com/originals/80/7c/a1/807ca16b42e5fe7dc8a5794157076559.png",
+                text_color="white",
+                bar_color="#5865f2"
             )
             await inter.response.defer()
             a = RankCard(
@@ -36,19 +45,19 @@ class Profile(commands.Cog):
                 level=lvl,
                 current_exp=xp,
                 max_exp=max_exp,
-                username=f"{name}#{tag}"
+                username=f"{name}#{tag}",
+                rank=rank
             )
             image = await a.card3()
             await inter.edit_original_message(file=disnake.File(image, filename="rank.png"))
             return {'name':name,'xp':xp,'lvl':lvl,'max_exp':max_exp,'tag':tag}
-        
+
         if user is None:
             user = inter.author
             await get_user_data(member=user)
         else:
             await get_user_data(member=user)
 
-        
             
 """
 Чтобы запустить код вам потребуется установить библиотеку - pip install discordlevelingcard
